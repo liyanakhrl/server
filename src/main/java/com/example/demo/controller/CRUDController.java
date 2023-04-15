@@ -4,6 +4,7 @@ import com.example.demo.model.ERole;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.payload.request.SignupRequest;
+import com.example.demo.payload.request.UpdateUserRequest;
 import com.example.demo.payload.response.MessageResponse;
 import com.example.demo.repository.CRUDRepository;
 import com.example.demo.repository.RoleRepository;
@@ -84,29 +85,72 @@ public class CRUDController {
         }
     }
 
-    @PostMapping("/user")
-    public ResponseEntity < ? > createUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+    @PostMapping("/")
+    public ResponseEntity<User> createUser(@RequestBody SignupRequest userRequest) {
+        // Create a new user entity
+        User user = new User();
+        user.setUsername(userRequest.getUsername());
+        user.setFirstName(userRequest.getFirstName());
+        user.setLastName(userRequest.getLastName());
+        user.setEmail(userRequest.getEmail());
+        user.setPassword(encoder.encode(userRequest.getPassword()));
+
+        // Assign roles to the user
+        // Update user roles
+        Set<String> strRoles = userRequest.getRole();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRoles != null) {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+
+                        break;
+                    case "mod":
+                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(modRole);
+
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(userRole);
+                }
+            });
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
-        }
 
-        // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()), signUpRequest.getFirstName(), signUpRequest.getLastName());
+        user.setRoles(roles);
 
-        Set< String > strRoles = signUpRequest.getRole();
-        Set <Role> roles = new HashSet< >();
+        // Save the user to the database
+        userRepository.save(user);
 
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
+        return ResponseEntity.ok(user);
+    }
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUserAndRole(@PathVariable(value = "id") Long userId,
+                                               @Valid @RequestBody UpdateUserRequest userDTO) {
+
+        // Check if user exists
+        User user = userRepository.findById(userId)
+
+                .orElseThrow(() -> new RuntimeException("Error: User is not found."));
+
+        // Update user details
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+
+        // Update user roles
+        Set<String> strRoles = userDTO.getRole();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRoles != null) {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
@@ -130,17 +174,17 @@ public class CRUDController {
         }
 
         user.setRoles(roles);
+
+        // Save updated user and roles
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return ResponseEntity.ok(new MessageResponse("User details and roles updated successfully!"));
     }
-
-
     @DeleteMapping("/user/{id}")
     public ResponseEntity < HttpStatus > deleteUser(@PathVariable("id") long id) {
         try {
             crudRepository.deleteById(id);
-            return new ResponseEntity < > (HttpStatus.NO_CONTENT);
+            return new ResponseEntity < > (HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity < > (HttpStatus.INTERNAL_SERVER_ERROR);
         }

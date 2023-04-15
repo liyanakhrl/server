@@ -99,6 +99,20 @@ public class AuthController {
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
 
+
+          // Check if there are any roles in the database
+        List<Role> roleList = roleRepository.findAll();
+        if (roleList.isEmpty()) {
+            // If no roles exist, create new role
+            Role role_admin = new Role(ERole.ROLE_ADMIN);
+            roleRepository.save(role_admin);
+            Role role_moderator = new Role(ERole.ROLE_MODERATOR);
+            roleRepository.save(role_moderator);
+            Role role_user = new Role(ERole.ROLE_USER);
+            roleRepository.save(role_user);
+        }
+
+
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
