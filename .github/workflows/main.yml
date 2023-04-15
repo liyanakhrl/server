@@ -18,7 +18,7 @@ jobs:
     - name: Build with Maven
       run: mvn clean install -DskipTests=true
     - name: Publish to Docker Hub
-      uses: docker/build-push-action@v1
+      uses: docker/build-push-action@v2
       with:
        username: ${{ secrets.DOCKER_HUB_USERNAME }}
        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
