@@ -9,8 +9,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
   DOCKER_IMAGE_NAME: server-user-img
-  DOCKER_IMAGE_TAG: latest
-  MYSQL_VERSION: latest
+  DOCKER_IMAGE_TAG: latest 
   MYSQL_DATABASE: myapp
   MYSQL_USER: myuser
   MYSQL_PASSWORD: mypass
@@ -21,7 +20,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:${{ env.MYSQL_VERSION }}
+        image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
