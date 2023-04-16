@@ -1,18 +1,17 @@
-name: Docker Build image and Publish
+name: Build and push Docker image
+
 on:
   push:
-    branches:
-      - main
-      
+    branches: [main]
+
 env:
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-  
+  IMAGE_NAME: my-app
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
+    
       - name: Checkout the code
         uses: actions/checkout@v2
         
@@ -39,3 +38,22 @@ jobs:
           compose-file: "./docker-compose.yml"
           tags: liyanamyc/server-user-mgt:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
+
+    services:
+      db:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: p@ssw0rd
+          MYSQL_DATABASE: demodb
+
+    container:
+      image: ${{ env.IMAGE_NAME }}:latest
+      env:
+        SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/demodb
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: p@ssw0rd
+        DEMO_APP_JWTCOOKIENAME: test
+        DEMO_APP_JWTSECRET: testSecret
+        DEMO_APP_JWTEXPIRATIONMS: 86400000
+      ports:
+        - "8080:8080"   
