@@ -15,31 +15,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: "17.0.0"
 
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-         java-version: '17.0.0'
-          
-    - name: Build with Maven
-      run: mvn clean install -DskipTests
-      
-    - name: Docker Login
-      uses: docker/login-action@v1
-      with:
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
 
-    - name: Build and tag Docker images
-      run: |
-        docker-compose build
-        docker tag myapp liyanamyc/myapp
-        docker tag mysqldb liyanamyc/mysqldb
+      - name: Push Docker images
+        run: |
+          docker push liyanamyc/myapp
+          docker push liyanamyc/mysqldb
 
-    - name: Push Docker images
-      run: |
-        docker push liyanamyc/myapp
-        docker push liyanamyc/mysqldb
+      - name: Build and tag Docker images
+        run: |
+          docker-compose build
+          docker tag myapp liyanamyc/myapp
+          docker tag mysqldb liyanamyc/mysqldb
+          
+      - name: Start Docker containers
+        run: docker-compose up -d
+        
+      - name: Wait for containers to start
+        run: sleep 10
+        
+      - name: Check container status
+        run: docker-compose ps
+        
+      - name: Clean up Docker containers
+        run: docker-compose down
