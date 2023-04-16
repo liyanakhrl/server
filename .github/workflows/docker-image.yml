@@ -1,4 +1,4 @@
-name: Spring Boot with MySQL
+name: Main workflow
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
           password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build --tag ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
+        run: docker build --tag ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
 
       - name: Push Docker image
         run: |
