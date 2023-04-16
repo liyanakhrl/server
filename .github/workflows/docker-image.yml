@@ -62,9 +62,5 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d --name myapp-container \
-          -p 8080:8080 \
-          -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC \
-          -e SPRING_DATASOURCE_USERNAME=${{ env.MYSQL_USER }} \
-          -e SPRING_DATASOURCE_PASSWORD=${{ env.MYSQL_PASSWORD }} \
-          ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+          docker run -d --name myapp-container -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC -e SPRING_DATASOURCE_USERNAME=${{ env.MYSQL_USER }} -e SPRING_DATASOURCE_PASSWORD=${{ env.MYSQL_PASSWORD }} ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+
