@@ -33,7 +33,8 @@ jobs:
         
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
-        with:
+        with:        
+          dockerfile: Dockerfile
           context: .
           file: ./docker-compose.yml
           push: true
