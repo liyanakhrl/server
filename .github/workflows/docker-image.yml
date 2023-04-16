@@ -53,9 +53,5 @@ jobs:
             mysql:latest
       - name: Start server
         run: |
-          docker run -d --name server-container -p 8080:8080 \
-            -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/$MYSQL_DATABASE?useSSL=false&serverTimezone=UTC \
-            -e SPRING_DATASOURCE_USERNAME=myuser \
-            -e SPRING_DATASOURCE_PASSWORD=mypass \
-            $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME:latest
+          docker run -d --name server-container -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/$MYSQL_DATABASE?useSSL=false&serverTimezone=UTC -e SPRING_DATASOURCE_USERNAME=myuser -e SPRING_DATASOURCE_PASSWORD=mypass $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME:latest
 
