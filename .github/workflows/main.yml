@@ -29,5 +29,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_HUB_USERNAME }}/server-user-mgt:latest
+          tags: liyanamyc/server-user-mgt:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }}
