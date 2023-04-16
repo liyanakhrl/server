@@ -1,8 +1,8 @@
-name: Build and push Docker image
+name: Docker Build image and Publish
 on:
   push:
-    branches: [main]
-
+    branches:
+      - main
       
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -12,8 +12,9 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    steps:   
-    
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
         
       - name: Set up JDK
         uses: actions/setup-java@v1
