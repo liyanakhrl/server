@@ -1,4 +1,4 @@
-name: Build and deploy Spring Boot app with MySQL
+name: Build and deploy server app with MySQL
 
 on:
   push:
