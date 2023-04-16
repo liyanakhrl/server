@@ -38,14 +38,14 @@ jobs:
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          
       - name: Build Docker Image
         run: |
           docker build --no-cache -t liyanamyc/myapp:latest \
               --build-arg SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/demodb \
               --build-arg SPRING_DATASOURCE_USERNAME=root \
               --build-arg SPRING_DATASOURCE_PASSWORD=p@ssw0rd \
-              ./
-
+              .
         
       - name: Push Docker Image
         uses: docker/build-push-action@v2
