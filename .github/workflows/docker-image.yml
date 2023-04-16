@@ -25,12 +25,13 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
 
-      - name: Build and push Docker image-img
+      - name: Build Docker Image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: liyanamyc/server:latest
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/server-user-mgt-app:latest
+          dockerfile: Dockerfile
           
       - name: Set up Docker Compose
         run: |
