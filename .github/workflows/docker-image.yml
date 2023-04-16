@@ -31,7 +31,7 @@ jobs:
           
           
       - name: Install Maven
-        run: sudo apt-get install -y maven
+        run: apt-get install -y maven
 
       - name: Build with Maven
         run: mvn clean install -DskipTests
