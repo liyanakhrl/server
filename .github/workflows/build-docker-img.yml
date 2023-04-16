@@ -6,10 +6,6 @@ on:
       - main
 
 env: 
-  MYSQL_VERSION: 5.7
-  MYSQL_DATABASE: testdb
-  MYSQL_USER: root
-  MYSQL_PASSWORD: p@ssw0rd
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
@@ -20,12 +16,12 @@ jobs:
 
     services:
       mysqldb:
-        image: mysql:${{ env.MYSQL_VERSION }}
+        image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: rootpass
-          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ env.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ env.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: demodb
+          MYSQL_USER: root
+          MYSQL_PASSWORD: p@ssw0rd
         ports:
           - 3306:3306
         options: >-
@@ -54,6 +50,6 @@ jobs:
           tags: liyanamyc/server-user-mgt:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC
-          SPRING_DATASOURCE_USERNAME: ${{ env.MYSQL_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ env.MYSQL_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb/demodb?useSSL=false&serverTimezone=UTC
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: p@ssw0rd
