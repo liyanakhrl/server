@@ -53,5 +53,5 @@ jobs:
         DEMO_APP_JWTSECRET: testSecret
         DEMO_APP_JWTEXPIRATIONMS: 86400000
       run: |
-        docker build -t myapp .
+        docker build -t liyanamyc/myapp .
         docker run -d --name myapp-container -p 8080:8080 --env-file <(env | grep ^SPRING_) myapp
