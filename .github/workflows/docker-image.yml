@@ -25,13 +25,22 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
 
-      - name: Build Docker Image
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
+          
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+        
+        
+      - name: Build the Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_HUB_USERNAME }}/server-user-mgt-app:latest
-          dockerfile: Dockerfile
+          tags: liyanamyc/server-user-mgt:latest
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
           
       - name: Set up Docker Compose
         run: |
