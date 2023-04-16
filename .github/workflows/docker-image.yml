@@ -55,7 +55,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: liyanamyc/server-user-mgt:latest
+          tags: liyanamyc/springboot-mysql:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC
