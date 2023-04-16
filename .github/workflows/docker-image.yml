@@ -43,6 +43,7 @@ jobs:
             --build-arg DEMO_APP_JWTSECRET=testSecret \
             --build-arg DEMO_APP_JWTEXPIRATIONMS=86400000 \
             --target server .
+            -f Dockerfile .
 
       - name: Push Docker Image
         run: |
