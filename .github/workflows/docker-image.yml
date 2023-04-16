@@ -9,11 +9,11 @@ on:
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    container: maven:3-jdk-17
+    container: maven:3.8.3-jdk-17
     services:
       mysqldb:
         image: mysql:5.7
@@ -25,11 +25,6 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
         
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-         java-version: '17.0.0'
-          
       - name: Build with Maven
         run: mvn clean install -DskipTests
         
@@ -53,3 +48,4 @@ jobs:
           context: .
           push: true
           tags: liyanamyc/myapp:latest
+
