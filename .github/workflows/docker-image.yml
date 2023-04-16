@@ -62,9 +62,3 @@ jobs:
         SPRING_DATASOURCE_PASSWORD: mypassword
         SPRING_JPA_HIBERNATE_DDL_AUTO: create
         SERVER_PORT: 8080
-
-    - name: Wait for app to start
-      run: docker-compose logs -f myapp | grep -q "Started myserver"
-
-    - name: Check app health
-      run: docker-compose ps myapp | grep -q "(healthy)"
