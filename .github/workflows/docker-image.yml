@@ -17,16 +17,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Build Spring Boot and MySQL Docker images
-        run: |
-          docker-compose build
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
+          
+      - name: Build with Maven
+        run: mvn clean install -DskipTests 
 
       - name: Login dockerhub and push img
         uses: docker/login-action@v1
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          
       - run: |
           docker tag springboot-mysql:latest ${{ env.DOCKER_HUB_USERNAME }}/springboot-mysql:latest
           docker push ${{ env.DOCKER_HUB_USERNAME }}/springboot-mysql:latest
+
+
+      - name: Build Spring Boot and MySQL Docker images
+        run: |
+          docker-compose build
