@@ -51,6 +51,4 @@ jobs:
 
       - name: Push Docker image
         run: docker push liyanamyc/myapp:latest
-
-      - name: Logout of Docker Hub
-        uses: docker/logout-action@v1
+ 
