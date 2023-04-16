@@ -1,66 +1,30 @@
-name: Build and Push Containers
-
+name: Build and push Docker image
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
+      
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: "17.0.0"
-
-      - name: Build with Maven
-        run: mvn clean install -DskipTests
-
+    steps:   
+      
       - name: Docker Login
         uses: docker/login-action@v1
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
-
-      - name: Build and push MySQL image
-        uses: docker/build-push-action@v2
-        with:
-          context: . 
-          push: true
-          tags: liyanamyc/mysqldb:latest
-          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
           
-      - name: Build and push Spring Boot image
+      - uses: actions/checkout@v2
+      - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
-          dockerfile: Dockerfile
+          file: ./docker-compose.yml
           push: true
-          tags: liyanamyc/myapp:latest
-          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
-
-      - name: Build and tag Docker images
-        run: |
-          docker-compose build
-          
-      - name: Start Docker containers
-        run: docker-compose up -d
-        
-      - name: Wait for containers to start
-        run: sleep 10
-        
-      - name: Check container status
-        run: docker-compose ps
-        
-      - name: Clean up Docker containers
-        run: docker-compose down
+          tags: liyanamyc/server-user-mgt:latest
