@@ -41,13 +41,13 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-          -t $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG \
+          -t ${{ env.DOCKER_HUB_USERNAME }}/ ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} \
           --build-arg JAR_FILE=target/*.jar \
-          --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
-          --build-arg MYSQL_USER=$MYSQL_USER \
-          --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
+          --build-arg MYSQL_DATABASE=${{ MYSQL_DATABASE }} \
+          --build-arg MYSQL_USER= ${{ MYSQL_USER }} \
+          --build-arg MYSQL_PASSWORD= ${{ MYSQL_PASSWORD }} \
           . 
 
       - name: Push Docker image
-        run: docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+        run: docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
  
