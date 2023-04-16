@@ -1,63 +1,62 @@
-name: Build and Push Docker Image
+name: Build and deploy Spring Boot app with MySQL
 
 on:
   push:
     branches:
       - main
-
+ 
 env:
-  IMAGE_NAME: liyanamyc/myserver
-  MYSQL_ROOT_PASSWORD: root
-  MYSQL_DATABASE: testdb
-  MYSQL_USER: myuser
-  MYSQL_PASSWORD: mypassword
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: myuser
+          MYSQL_PASSWORD: mypassword
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
          java-version: '17.0.0'
           
-      - name: Build with Maven
-        run: mvn clean install -DskipTests       
+    - name: Build with Maven
+      run: mvn clean install -DskipTests        
 
-      
-      - name: Docker Login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ env.DOCKER_HUB_USERNAME }}/myserver:latest
 
-      - name: Build the Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          build-args: |
-            JDK_VERSION=17
-            MAVEN_OPTS="-Xmx2g"
-            MYSQL_ROOT_PASSWORD=${{ env.MYSQL_ROOT_PASSWORD }}
-            MYSQL_DATABASE=${{ env.MYSQL_DATABASE }}
-            MYSQL_USER=${{ env.MYSQL_USER }}
-            MYSQL_PASSWORD=${{ env.MYSQL_PASSWORD }}
-          dockerfile: Dockerfile
+    - name: Deploy using Docker Compose
+      run: docker-compose up --build --force-recreate -d
+      env:
+        SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydb
+        SPRING_DATASOURCE_USERNAME: myuser
+        SPRING_DATASOURCE_PASSWORD: mypassword
+        SPRING_JPA_HIBERNATE_DDL_AUTO: create
+        SERVER_PORT: 8080
 
-      - name: Deploy the Docker image
-        if: success()
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.IMAGE_NAME }}
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Wait for app to start
+      run: docker-compose logs -f myserver | grep -q "Started myserver"
+
+    - name: Check app health
+      run: docker-compose ps myserver | grep -q "(healthy)"
