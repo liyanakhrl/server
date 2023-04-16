@@ -12,10 +12,9 @@ env:
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
   DOCKER_IMAGE_NAME: user-mgt-server
   DOCKER_IMAGE_TAG: latest
-  MYSQL_VERSION: latest
   MYSQL_DATABASE: demodb
-  MYSQL_USER: myuser
-  MYSQL_PASSWORD: mypass
+  MYSQL_USER: rootuser
+  MYSQL_PASSWORD: p@ssw0rd
 
 jobs:
   build-and-deploy:
@@ -23,7 +22,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:${{ env.MYSQL_VERSION }}
+        image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
