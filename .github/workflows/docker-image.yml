@@ -35,10 +35,16 @@ jobs:
           --health-retries=3
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
-      - name: Build Maven project
+      - name: Checkout the code
+        uses: actions/checkout@v2
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
+          
+      - name: Build with Maven
         run: mvn clean install -DskipTests
         
       - name: Log in to Docker
