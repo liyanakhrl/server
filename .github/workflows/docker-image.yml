@@ -51,7 +51,7 @@ jobs:
       image: docker:20.10.7
       options: --network host
     env:
-      DOCKER_USERNAME: ${{ env.DOCKER_HUB_USERNAME }}
+      DOCKER_USERNAME: liyanamyc
       DOCKER_PASSWORD: ${{ env.DOCKER_ACCESS_TOKEN }}
     services:
       mysqldb:
