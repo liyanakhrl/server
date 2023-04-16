@@ -13,7 +13,7 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    container: maven:3.8-jdk-17
+    container: maven:3-jdk-17
     services:
       mysqldb:
         image: mysql:5.7
