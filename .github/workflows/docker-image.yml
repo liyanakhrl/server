@@ -1,63 +1,54 @@
-name: Build and deploy server app with MySQL
+name: Build and Deploy
+
 on:
   push:
     branches:
       - main
- 
+
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: demodb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: p@ssw0rd
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
+    steps: 
+      - name: Checkout the code
+        uses: actions/checkout@v2
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
          java-version: '17.0.0'
           
-    - name: Build with Maven
-      run: mvn clean install -DskipTests       
-
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
       
-    - name: Docker Login
-      uses: docker/login-action@v1
-      with:
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}      
-      
+          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          
 
-    - name: Build Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: ${{ env.DOCKER_HUB_USERNAME }}/myserver:latest
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install curl
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
-    - name: Deploy using Docker Compose
-      run: docker-compose up --build --force-recreate -d
-      env:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/demodb
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: p@ssw0rd
-        SPRING_JPA_HIBERNATE_DDL_AUTO: create
-        SERVER_PORT: 8080
+      - name: Build and tag Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            liyanamyc/myserver:latest
+            liyanamyc/myserver:${{ github.sha }}
+
+      - name: Deploy with Docker Compose
+        run: |
+          sudo docker-compose -f docker-compose.yml up -d
