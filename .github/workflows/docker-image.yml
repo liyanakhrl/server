@@ -52,7 +52,7 @@ jobs:
       options: --network host
     env:
       DOCKER_USERNAME: liyanamyc
-      DOCKER_PASSWORD: ${{ env.DOCKER_ACCESS_TOKEN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     services:
       mysqldb:
         image: mysql:5.7
