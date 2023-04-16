@@ -1,59 +1,59 @@
-name: Build and push Docker image
+name: Spring Boot with MySQL
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
-env:
-  IMAGE_NAME: my-app
+env: 
+  MYSQL_VERSION: 5.7
+  MYSQL_DATABASE: testdb
+  MYSQL_USER: root
+  MYSQL_PASSWORD: p@ssw0rd
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
+
+    services:
+      mysqldb:
+        image: mysql:${{ env.MYSQL_VERSION }}
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ env.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ env.MYSQL_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
-    
-      - name: Checkout the code
+      - name: Checkout code
         uses: actions/checkout@v2
-        
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
          java-version: '17.0.0'
-          
+
       - name: Build with Maven
         run: mvn clean install -DskipTests
-        
-      
-      - name: Docker Login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+
         
       - name: Build the Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          compose-file: "./docker-compose.yml"
           tags: liyanamyc/server-user-mgt:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
-
-    services:
-      db:
-        image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: p@ssw0rd
-          MYSQL_DATABASE: demodb
-
-    container:
-      image: ${{ env.IMAGE_NAME }}:latest
-      env:
-        SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/demodb
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: p@ssw0rd
-        DEMO_APP_JWTCOOKIENAME: test
-        DEMO_APP_JWTSECRET: testSecret
-        DEMO_APP_JWTEXPIRATIONMS: 86400000
-      ports:
-        - "8080:8080"   
+          SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC
+          SPRING_DATASOURCE_USERNAME: ${{ env.MYSQL_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ env.MYSQL_PASSWORD }}
