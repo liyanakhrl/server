@@ -1,55 +1,54 @@
-name: Build and Push Spring Boot Container with MySQL
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
-      
 
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-
 jobs:
-  build-and-push-container:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
+    steps: 
+      - name: Checkout the code
         uses: actions/checkout@v2
-
-      - name: Login to Docker Hub
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
+          
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+      
+      - name: Docker Login
         uses: docker/login-action@v1
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_PASSWORD }}
+          password: ${{ env.DOCKER_ACCESS_TOKEN }}
           
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
- 
 
-      - name: Build MySQL container
+      - name: Set up Docker Compose
         run: |
-          docker build -t mysql:latest -f .
+          sudo apt-get update
+          sudo apt-get -y install curl
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Start MySQL container
-        run: |
-          docker run --name mysql -d -e MYSQL_ROOT_PASSWORD=p@ssw0rd mysql:latest
-
-      - name: Build and push container
+      - name: Build and tag Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
+          file: ./Dockerfile
           push: true
-          tags: liyanamyc/my-spring-boot-app:latest
-          builder: docker/buildx-build
-          build-args: |
-            SPRING_PROFILES_ACTIVE=prod
-            DB_HOST=mysql
-            DB_PORT=3306
-            DB_NAME=mydatabase
-            DB_USERNAME=root
-            DB_PASSWORD=p@ssw0rd
-          cache-from: type=registry,ref=liyanamyc/my-spring-boot-app:cache
-          cache-to: type=inline
+          tags: |
+            liyanamyc/myserver:latest
+            liyanamyc/myserver:${{ github.sha }}
+
+      - name: Deploy with Docker Compose
+        run: |
+          sudo docker-compose -f docker-compose.yml up -d
