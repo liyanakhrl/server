@@ -8,12 +8,12 @@ on:
 
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
   
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    container: maven:3.8.3-jdk-17
+    container: adoptopenjdk/openjdk17:x86_64-ubuntu-jdk-17.0.1_12
     services:
       mysqldb:
         image: mysql:5.7
@@ -48,4 +48,3 @@ jobs:
           context: .
           push: true
           tags: liyanamyc/myapp:latest
-
