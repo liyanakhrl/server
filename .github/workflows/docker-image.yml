@@ -1,56 +1,39 @@
-name: Spring Boot with MySQL
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
 
-env: 
-  DOCKER_HUB_USERNAME: liyanamyc
-  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-  DOCKER_IMAGE_NAME: server-img
-  MYSQL_DATABASE: myapp
-  MYSQL_USER: myuser
-  MYSQL_PASSWORD: mypass
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+
+
+    - name: Checkout the code
+      uses: actions/checkout@v2
         
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-         java-version: '17.0.0'
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+       java-version: '17.0.0'
           
-      - name: Build with Maven
-        run: mvn clean install -DskipTests
-        
-      - name: Docker Login
-        uses: docker/login-action@v1
-        with:
-          username: liyanamyc
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
 
-      - name: Build Docker image
-        run: docker build --tag liyanamyc/$DOCKER_IMAGE_NAME:latest .
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
-      - name: Push Docker image
-        run: |
-          docker push liyanamyc/$DOCKER_IMAGE_NAME:latest
+    - name: Build Docker image
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/server-usr-mgt-app .
 
-      - name: Start MySQL service
-        run: |
-          docker run -d --name mysql \
-            -e MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD \
-            -e MYSQL_DATABASE=$MYSQL_DATABASE \
-            -e MYSQL_USER=$MYSQL_USER \
-            -e MYSQL_PASSWORD=$MYSQL_PASSWORD \
-            mysql:latest
-      - name: Start server
-        run: |
-           docker run -d --name server-container -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mydatabase?useSSL=false&serverTimezone=UTC -e SPRING_DATASOURCE_USERNAME=myuser -e SPRING_DATASOURCE_PASSWORD=mypass liyanamyc/server-img:latest
+    - name: Push Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/server-usr-mgt-app
+
+    - name: Start Docker Compose stack
+      run: docker-compose up -d
