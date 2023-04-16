@@ -39,8 +39,5 @@ jobs:
           context: .
           dockerfile: Dockerfile
 
-      - name: Deploy with Docker Compose
-        uses: docker/compose-action@1.2.0
-        with:
-          compose-file: ./docker-compose.yml
-          project-name: demo
+      - name: Build the stack
+        run: docker-compose up -d
