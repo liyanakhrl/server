@@ -18,9 +18,9 @@ jobs:
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: myuser
-          MYSQL_PASSWORD: mypassword
+          MYSQL_DATABASE: demodb
+          MYSQL_USER: root
+          MYSQL_PASSWORD: p@ssw0rd
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -56,8 +56,8 @@ jobs:
     - name: Deploy using Docker Compose
       run: docker-compose up --build --force-recreate -d
       env:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydb
-        SPRING_DATASOURCE_USERNAME: myuser
-        SPRING_DATASOURCE_PASSWORD: mypassword
+        SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/demodb
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: p@ssw0rd
         SPRING_JPA_HIBERNATE_DDL_AUTO: create
         SERVER_PORT: 8080
