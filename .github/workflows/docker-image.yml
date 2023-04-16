@@ -1,4 +1,4 @@
-name: Spring Boot with MySQL
+name: User management workflow
 
 on:
   push:
@@ -22,9 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-
+        uses: actions/checkout@v2 
         
       - name: Set up JDK
         uses: actions/setup-java@v1
@@ -35,12 +33,11 @@ jobs:
         run: mvn package -DskipTests=true
         
 
-      - name: Log in to Docker registry
+      - name: Docker Login
         uses: docker/login-action@v1
         with:
-          registry: $DOCKER_REGISTRY
-          username: $DOCKER_HUB_USERNAME
-          password: $DOCKER_ACCESS_TOKEN
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_ACCESS_TOKEN }}
 
       - name: Build Docker image
         run: |
