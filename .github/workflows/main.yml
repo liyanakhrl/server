@@ -1,41 +1,20 @@
-name: Build and push Docker image
-
+name: Build and Push Docker Image
 on:
   push:
     branches:
       - main
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      DOCKER_REGISTRY: docker.io
-      DOCKER_IMAGE_NAME: user-mgt-server
-      DOCKER_IMAGE_TAG: latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
-      
-      - name: Login to Docker registry
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
-      
-      - name: Build the Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          dockerfile: ./Dockerfile
-          push: true
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
-      
-      - name: Deploy the Docker Compose stack
-        uses: docker/compose-action@v1.0.0-rc1
-        with:
-          compose-file: docker-compose.yml
-          project-name: demo
-          command: up -d
+      - name: Build Docker Image
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+          docker build -t user-mgt-server:latest .
+      - name: Push Docker Image
+        run: docker push user-mgt-server:latest
