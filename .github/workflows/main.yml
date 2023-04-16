@@ -1,39 +1,41 @@
-name: Build and Publish Docker Image
+name: Build and push Docker image
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-env:
-  DOCKER_HUB_USERNAME: liyanamyc
-  DOCKER_HUB_PASSWORD: Liyana21@@
-  DOCKER_ACCESS_TOKEN: dckr_pat_q2rLEaHmEudyjUxCK8ZQPJLNPKY
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_REGISTRY: docker.io
+      DOCKER_IMAGE_NAME: user-mgt-server
+      DOCKER_IMAGE_TAG: latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-        java-version: '18.0.1'
-    - name: Build with Maven
-      run: mvn clean install -DskipTests=true
+      - name: Checkout code
+        uses: actions/checkout@v2
       
+      - name: Login to Docker registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
       
-    - name: Docker Login
-      uses: docker/login-action@v1
-      with:
-        username: ${{ env.DOCKER_HUB_USERNAME }}
-        password: ${{ env.DOCKER_HUB_PASSWORD }}
+      - name: Build the Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          dockerfile: ./Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
       
-    - name: Publish to Docker Hub
-      uses: docker/build-push-action@v2
-      with:
-       username: ${{ env.DOCKER_HUB_USERNAME }}
-       password: ${{ env.DOCKER_HUB_PASSWORD }}
-       repository: ${{ env.DOCKER_HUB_USERNAME }}/springboot-server
-       tags: ${{github.run_number}}
+      - name: Deploy the Docker Compose stack
+        uses: docker/compose-action@v1.0.0-rc1
+        with:
+          compose-file: docker-compose.yml
+          project-name: demo
+          command: up -d
