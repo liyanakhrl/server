@@ -64,7 +64,7 @@ jobs:
         SERVER_PORT: 8080
 
     - name: Wait for app to start
-      run: docker-compose logs -f myserver | grep -q "Started myserver"
+      run: docker-compose logs -f liyanamyc/myserver | grep -q "Started myserver"
 
     - name: Check app health
-      run: docker-compose ps myserver | grep -q "(healthy)"
+      run: docker-compose ps liyanamyc/myserver | grep -q "(healthy)"
