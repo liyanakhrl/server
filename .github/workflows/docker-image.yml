@@ -1,60 +1,55 @@
-name: Docker Build image and Publish
+name: Build and Push Spring Boot Container with MySQL
+
 on:
   push:
     branches:
       - main
       
+
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-  
+
 jobs:
-  container-run-jobs:
+  build-and-push-container:
     runs-on: ubuntu-latest
-    container:
-      image: maven:3-openjdk-17
-    services:
-      mysqldb:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: p@ssw0rd
-          MYSQL_DATABASE: demodb
 
     steps:
-      - name: Checkout the code 
+      - name: Checkout code
         uses: actions/checkout@v2
-        
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-         java-version: '17.0.0'
-          
-      - name: Build with Maven
-        run: mvn clean install -DskipTests 
-        
-      - name: Install Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install docker.io
-      
-      - name: Docker Login
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
           
-      - name: Build Docker Image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+ 
+
+      - name: Build MySQL container
         run: |
-          docker build --no-cache -t liyanamyc/myapp:latest \
-              --build-arg SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/demodb \
-              --build-arg SPRING_DATASOURCE_USERNAME=root \
-              --build-arg SPRING_DATASOURCE_PASSWORD=p@ssw0rd \
-              .
-        
-      - name: Push Docker Image
+          docker build -t mysql:latest -f .
+
+      - name: Start MySQL container
+        run: |
+          docker run --name mysql -d -e MYSQL_ROOT_PASSWORD=p@ssw0rd mysql:latest
+
+      - name: Build and push container
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: liyanamyc/myapp:latest
+          tags: liyanamyc/my-spring-boot-app:latest
+          builder: docker/buildx-build
+          build-args: |
+            SPRING_PROFILES_ACTIVE=prod
+            DB_HOST=mysql
+            DB_PORT=3306
+            DB_NAME=mydatabase
+            DB_USERNAME=root
+            DB_PASSWORD=p@ssw0rd
+          cache-from: type=registry,ref=liyanamyc/my-spring-boot-app:cache
+          cache-to: type=inline
