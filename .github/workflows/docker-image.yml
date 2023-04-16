@@ -47,11 +47,8 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
           
-      #- name: Build Docker image
-        #run: docker build -t myimage .
-
-      - name: Start MySQL service
-        run: docker run --name mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=mydatabase -p 3306:3306 -d mysql:8
+      - name: Build Docker image
+        run: docker build -t myimage .
 
       - name: Start application container
         run: docker run --name mycontainer --link mysql:mysql -p 8080:8080 -d myimage
