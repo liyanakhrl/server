@@ -9,6 +9,9 @@ env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+  MYSQL_DATABASE: demodb
+  MYSQL_USER: rootuser
+  MYSQL_PASSWORD: p@ssw0rd
 
 jobs:
   build:
@@ -19,9 +22,9 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: demodb
-          MYSQL_USER: root
-          MYSQL_PASSWORD: p@ssw0rd
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ env.MMYSQL_USER }}
+          MYSQL_PASSWORD: ${{ env.MYSQL_PASSWORDE }}
         ports:
           - 3306:3306
         options: >-
@@ -50,6 +53,6 @@ jobs:
           tags: liyanamyc/server-user-mgt:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/demodb?useSSL=false&serverTimezone=UTC
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: p@ssw0rd
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC
+          SPRING_DATASOURCE_USERNAME: ${{ env.MYSQL_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ env.MYSQL_PASSWORD }}
