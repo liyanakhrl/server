@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     container:
-      image: maven:3.8.3-openjdk-17
+      image: openjdk:17
       options: --network host
     env:
       DOCKER_USERNAME: liyanamyc
