@@ -31,11 +31,22 @@ jobs:
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
-          
-      - run: |
-          docker tag springboot-mysql:latest ${{ env.DOCKER_HUB_USERNAME }}/springboot-mysql:latest
-          docker push ${{ env.DOCKER_HUB_USERNAME }}/springboot-mysql:latest
 
+      - name: Build Docker Image
+        uses: docker/build-push-action@v2
+        with:
+         context: .
+         push: true
+         tags: ${{ env.DOCKER_HUB_USERNAME }}/server-user-mgt-app:latest
+         dockerfile: Dockerfile
+
+      - name: Push Docker Image to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+         context: .
+         push: true
+         tags: ${{ env.DOCKER_HUB_USERNAME }}/ng-user-mgt-app:latest
+         dockerfile: Dockerfile 
 
       - name: Build Spring Boot and MySQL Docker images
         run: |
