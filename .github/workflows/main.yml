@@ -30,4 +30,4 @@ jobs:
           context: .
           push: true
           tags: liyanamyc/server-user-mgt:latest
-          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }}
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_ACCESS_TOKEN }}
