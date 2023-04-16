@@ -51,7 +51,6 @@ jobs:
             -e MYSQL_USER=$MYSQL_USER \
             -e MYSQL_PASSWORD=$MYSQL_PASSWORD \
             mysql:latest
-                  - name: Start Spring Boot application
       - name: Start server
         run: |
           docker run -d --name server-container -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/$MYSQL_DATABASE?useSSL=false&serverTimezone=UTC -e SPRING_DATASOURCE_USERNAME=$MYSQL_USER -e SPRING_DATASOURCE_PASSWORD=$MYSQL_PASSWORD $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
