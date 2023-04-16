@@ -27,4 +27,5 @@ jobs:
           context: .
           file: ./docker-compose.yml
           push: true
-          tags: liyanamyc/server-user-mgt:latest
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/ng-user-mgt-app:latest
+          dockerfile: Dockerfile
