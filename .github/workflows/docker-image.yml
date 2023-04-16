@@ -13,7 +13,7 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    container: adoptopenjdk/openjdk17:x86_64-ubuntu-jdk-17.0.1_12
+    container: openjdk:17
     services:
       mysqldb:
         image: mysql:5.7
