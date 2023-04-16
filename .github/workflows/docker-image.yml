@@ -19,7 +19,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: demodb
-          MYSQL_USER: root
+          MYSQL_USER: testuser
           MYSQL_PASSWORD: p@ssw0rd
         ports:
           - 3306:3306
