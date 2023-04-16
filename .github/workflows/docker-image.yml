@@ -41,7 +41,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
+          docker push $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME:latest
 
       - name: Start MySQL service
         run: |
@@ -54,7 +54,7 @@ jobs:
 
       - name: Start Spring Boot application
         run: |
-          docker run -d --name myapp-container \
+          docker run -d --name server-container \
             -p 8080:8080 \
             -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/$MYSQL_DATABASE?useSSL=false&serverTimezone=UTC \
             -e SPRING_DATASOURCE_USERNAME=$MYSQL_USER \
