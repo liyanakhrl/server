@@ -32,10 +32,22 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
 
-      - name: Push Docker images
-        run: |
-          docker push liyanamyc/myapp
-          docker push liyanamyc/mysqldb
+      - name: Build and push MySQL image
+        uses: docker/build-push-action@v2
+        with:
+          context: . 
+          push: true
+          tags: liyanamyc/mysqldb:latest
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
+          
+      - name: Build and push Spring Boot image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: liyanamyc/myapp:latest
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
 
       - name: Build and tag Docker images
         run: |
