@@ -1,0 +1,89 @@
+name: Spring Boot with MySQL
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  MYSQL_DATABASE: testdb
+  MYSQL_USER: myuser
+  MYSQL_PASSWORD: mypass
+  DOCKER_REGISTRY: docker.io
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+  DOCKER_IMAGE_NAME: server-usr-mgt
+  DOCKER_IMAGE_TAG: latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
+
+      - name: Build with Maven
+        run: mvn package -DskipTests=true
+        
+
+      - name: Log in to Docker registry
+        uses: docker/login-action@v1
+        with:
+          registry: $DOCKER_REGISTRY
+          username: $DOCKER_HUB_USERNAME
+          password: $DOCKER_ACCESS_TOKEN
+
+      - name: Build Docker image
+        run: |
+          docker build \
+          -t $DOCKER_REGISTRY/$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG \
+          --build-arg JAR_FILE=target/*.jar \
+          --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
+          --build-arg MYSQL_USER=$MYSQL_USER \
+          --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
+          . 
+
+      - name: Push Docker image
+        run: docker push $DOCKER_REGISTRY/$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ env.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ env.MYSQL_PASSWORD }}
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2 
+        
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
+
+      - name: Run Docker container
+        run: |
+          docker run \
+          -p 8080:8080 \
+          --name testdb \
+          --link mysql:mysql \
+          -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${{ env.MYSQL_DATABASE }} \
+          -e SPRING_DATASOURCE_USERNAME=${{ env.MYSQL_USER }} \
+          -e SPRING_DATASOURCE_PASSWORD=${{ env.MYSQL_PASSWORD }} \
+          -d $DOCKER_REGISTRY/$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
