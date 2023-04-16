@@ -30,13 +30,14 @@ jobs:
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
-          
-      - name: Build and push images
+           
+      - name: Build the Docker image
         uses: docker/build-push-action@v2
         with:
-          push: true
-          tags: server-user-mgt:latest
           context: .
+          push: true
+          tags: liyanamyc/server-user-mgt:latest
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
           dockerfile: Dockerfile
 
       - name: Build the stack
