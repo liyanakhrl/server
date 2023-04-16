@@ -52,8 +52,6 @@ jobs:
       - name: Build and tag Docker images
         run: |
           docker-compose build
-          docker tag myapp liyanamyc/myapp
-          docker tag mysqldb liyanamyc/mysqldb
           
       - name: Start Docker containers
         run: docker-compose up -d
