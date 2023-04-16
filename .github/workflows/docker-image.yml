@@ -5,35 +5,53 @@ on:
     branches:
       - main
 
+env:
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+  
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: mydatabase
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-
-    - name: Checkout the code
-      uses: actions/checkout@v2
-        
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-       java-version: '17.0.0'
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+         java-version: '17.0.0'
           
-    - name: Build with Maven
-      run: mvn clean install -DskipTests
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          
+      - name: Build Docker image
+        run: docker build -t myimage .
 
-    - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/server-usr-mgt-app .
+      - name: Start MySQL service
+        run: docker run --name mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=mydatabase -p 3306:3306 -d mysql:8
 
-    - name: Push Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/server-usr-mgt-app
-
-    - name: Start Docker Compose stack
-      run: docker-compose up -d
+      - name: Start application container
+        run: docker run --name mycontainer --link mysql:mysql -p 8080:8080 -d myimage
