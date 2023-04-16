@@ -10,10 +10,10 @@ env:
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
   
 jobs:
-  container-test-job:
+  container-run-jobs:
     runs-on: ubuntu-latest
     container:
-      image: maven:3.8.3-openjdk-16
+      image: maven:3-openjdk-17
     services:
       mysqldb:
         image: mysql:5.7
@@ -32,7 +32,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_PASSWORD }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         
       - name: Build Docker Image
         run: |
@@ -48,4 +48,3 @@ jobs:
           context: .
           push: true
           tags: liyanamyc/myapp:latest
- 
