@@ -1,26 +1,24 @@
-name: Build and Deploy
-
+name: Build and Deploy App
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-  
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     services:
       mysql:
-        image: mysql:8
+        image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: mydatabase
+          MYSQL_ROOT_PASSWORD: p@ssw0rd
+          MYSQL_DATABASE: demodb
         ports:
           - 3306:3306
         options: >-
@@ -28,16 +26,15 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-
     steps:
-      - name: Checkout Code
+      - name: Checkout Git repository
         uses: actions/checkout@v2
 
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
          java-version: '17.0.0'
-          
+
       - name: Build with Maven
         run: mvn clean install -DskipTests
 
@@ -46,9 +43,16 @@ jobs:
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
-          
-      - name: Build Docker image
-        run: docker build -t myimage .
 
-      - name: Start application container
-        run: docker run --name mycontainer --link mysql:mysql -p 8080:8080 -d myimage
+      - name: Build and run Docker Compose
+        uses: docker/compose-action@v2.2.1
+        with:
+          compose-file: docker-compose.yml
+          services: myapp
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/demodb
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: p@ssw0rd
+          DEMO_APP_JWTCOOKIENAME: test
+          DEMO_APP_JWTSECRET: testSecret
+          DEMO_APP_JWTEXPIRATIONMS: 86400000
