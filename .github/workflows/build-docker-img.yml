@@ -60,12 +60,3 @@ jobs:
       - name: Push Docker image
         run: |
           docker push $DOCKER_REGISTRY/$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-
-      - name: Run Docker container
-        run: |
-          docker run -d --name server-container \
-          -p 8080:8080 \
-          -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${{ env.MYSQL_DATABASE }}?useSSL=false&serverTimezone=UTC \
-          -e SPRING_DATASOURCE_USERNAME=${{ env.MYSQL_USER }} \
-          -e SPRING_DATASOURCE_PASSWORD=${{ env.MYSQL_PASSWORD }} \
-          $DOCKER_REGISTRY/$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
