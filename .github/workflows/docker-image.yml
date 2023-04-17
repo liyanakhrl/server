@@ -48,13 +48,13 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_ACCESS_TOKEN }}
 
-      - uses: actions/checkout@v2
-      - name: Build and push Spring Boot Docker image
+      - name: Build the Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_HUB_USERNAME }}/your-app-image-name:${{ github.sha }}
+          compose-file: "./docker-compose.yml"
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/your-app-image-name:latest
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/myapp?useSSL=false&serverTimezone=UTC
