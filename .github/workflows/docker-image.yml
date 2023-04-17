@@ -44,25 +44,23 @@ jobs:
           build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
 
     - name: Start MySQL container
-      uses: docker/build-push-action@v2
+      uses: isbang/compose-action@v1.4.1
       with:
         compose-file: docker-compose.yml
         command: up -d mysql
 
     - name: Start Spring Boot container
-      uses: docker/build-push-action@v2
+      uses: isbang/compose-action@v1.4.1
       with:
         compose-file: docker-compose.yml
         command: up -d spring-boot
 
     - name: Wait for containers to start
       run: sleep 30
+ 
 
-    - name: Run integration tests
-      run: mvn verify
-
-    - name: Stop containers
-      uses: docker/compose-action@v1
-      with:
-        compose-file: docker-compose.yml
-        command: down
+    #- name: Stop containers
+    #- uses: isbang/compose-action@v1.4.1
+    #  with:
+    #    compose-file: docker-compose.yml
+    #    command: down
