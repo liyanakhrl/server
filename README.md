@@ -1,5 +1,5 @@
 # server
-etiqa technical assessment. This is springboot server
+etiqa technical assessment. This is springboot server build with Maven and Java JDK 17
 
 ### A third-level heading
 How to run the project 
@@ -10,3 +10,6 @@ To stop container
 ```
 docker-compose up
 ```
+
+Preview :
+https://www.youtube.com/watch?v=n6fwyGVi5Go
