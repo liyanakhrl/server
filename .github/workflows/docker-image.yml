@@ -9,23 +9,22 @@ env:
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
   IMAGE_NAME: myserver
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
          java-version: '17.0.0'
-          
+
       - name: Build with Maven
         run: mvn clean install -DskipTests
-        
-        
+
       - name: Docker Login
         uses: docker/login-action@v1
         with:
@@ -40,15 +39,18 @@ jobs:
           tags: ${{ env.DOCKER_HUB_USERNAME}}/${{ env.IMAGE_NAME}}:${{ github.sha }}
           builder: docker://docker.io/docker/dockerfile:1.2.1
 
-      - name: Run MySQL database container
-        uses: docker/compose-action@v1
-        with:
-          compose-file: docker-compose.yml
-          service-name: mysqldb
-
-      - name: Start application container
+      - name: Start containers with docker-compose
         run: |
-          docker-compose up myapp
+          docker-compose up -d
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/demodb1
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: p@ssw0rd
+          SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL5InnoDBDialect
+          SPRING_HIBERNATE_DDL_AUTO: update
+          DEMO_APP_JWTCOOKIENAME: test
+          DEMO_APP_JWTSECRET: testSecret
+          DEMO_APP_JWTEXPIRATIONMS: 86400000
 
       - name: Stop containers
         run: |
