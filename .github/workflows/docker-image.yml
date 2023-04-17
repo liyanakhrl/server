@@ -38,9 +38,10 @@ jobs:
     - name: Build Docker image
       uses: docker/build-push-action@v2
       with:
-        context: .
-        push: true
-        tags: liyanamyc/your-image-name:latest
+          context: .
+          push: true
+          tags: liyanamyc/server-user-mgt:latest
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
 
     - name: Start MySQL container
       uses: docker/compose-action@v1
