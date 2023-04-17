@@ -33,7 +33,7 @@ jobs:
           --health-retries=10
 
       app:
-        image: liyanamyc/server:latest
+        image: liyanamyc/server:tagname
         ports:
           - 8080:8080
         env:
