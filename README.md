@@ -12,6 +12,6 @@ docker-compose up
 ```
 
 Docker image :
-https://hub.docker.com/r/liyanamyc/my-angular-app
+https://hub.docker.com/repository/docker/liyanamyc/server-user-mgt
 Preview :
 https://www.youtube.com/watch?v=n6fwyGVi5Go
