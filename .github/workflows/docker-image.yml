@@ -37,7 +37,7 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_HUB_USERNAME}}/${{ env.IMAGE_NAME}}:${{ github.sha }}
-          builder: docker://docker.io/docker/dockerfile:1.2.1
+          builder: docker.io/docker/dockerfile:1.2.1
 
       - name: Start containers with docker-compose
         run: |
