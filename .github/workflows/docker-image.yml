@@ -29,15 +29,15 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
-
+          password: ${{ env.DOCKER_ACCESS_TOKEN }} 
+          
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
           tags: ${{ env.DOCKER_HUB_USERNAME}}/${{ env.IMAGE_NAME}}:${{ github.sha }}
-          builder: docker.io/docker/dockerfile:1.2.1
+          builder: docker/dockerfile:1.2.1
 
       - name: Start containers with docker-compose
         run: |
