@@ -1,8 +1,9 @@
-name: Push Docker Compose Container
+name: CI-dev-pipeline
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
       
 env:
@@ -11,23 +12,22 @@ env:
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
   
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
-
+    container:
+      image: liyanamyc/server
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2 
-      
-      - name: Docker Login
+    
+      - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           
-      - name: Set up Docker Compose
-        uses: docker/compose-cli@v1.0.32
-
-      - name: Build and push Docker Compose container
+      - uses: actions/checkout@v2
+        with:
+          path: "liyanamyc"
+      - name: Build Docker Compose container
         run: |
           export IMAGE_NAME=server
           docker-compose build && \
@@ -35,3 +35,6 @@ jobs:
           docker push liyanamyc/$IMAGE_NAME
         env:
           DOCKER_REGISTRY: docker.io
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} 
