@@ -1,40 +1,62 @@
-name: CI-dev-pipeline
+name: Push image
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
-      
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-  
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    container:
-      image: maven:3.8.3-openjdk-17
+    services:
+      mysqldb:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: myapp
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          
     steps:
-    
-      - name: Login to Docker Hub
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17.0.0'
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+
+      - name: Docker Login
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-          
-      - uses: actions/checkout@v2
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v2
         with:
-          path: "liyanamyc"
-      - name: Build Docker Compose container
-        run: |
-          export IMAGE_NAME=server
-          docker-compose build && \
-          docker tag $IMAGE_NAME liyanamyc/$IMAGE_NAME && \
-          docker push liyanamyc/$IMAGE_NAME
+          context: .
+          push: true
+          compose-file: "./docker-compose.yml"
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/your-app-image-name:latest
+          build-args: DOCKER_USERNAME=${{ env.DOCKER_HUB_USERNAME }},DOCKER_PASSWORD=${{ env.DOCKER_HUB_PASSWORD }}
         env:
-          DOCKER_REGISTRY: docker.io
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} 
+          SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/myapp?useSSL=false&serverTimezone=UTC
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: p@ssw0rd
