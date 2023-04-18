@@ -13,6 +13,6 @@ docker-compose down
 ```
 
 # Docker image : 
-https://hub.docker.com/repository/docker/liyanamyc/server-user-mgt
+https://hub.docker.com/r/liyanamyc/server-user-mgt
 ## Preview :
 https://www.youtube.com/watch?v=n6fwyGVi5Go
