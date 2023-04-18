@@ -1,5 +1,6 @@
 # server
-etiqa technical assessment. This is springboot server build with Maven and Java JDK 17
+etiqa technical assessment. This is springboot server build with Maven and Java JDK 17.
+The server listen to port 8080
 
 ### How to run the project
   
