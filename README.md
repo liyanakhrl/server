@@ -1,9 +1,15 @@
-# server
-etiqa technical assessment. This is springboot server build with Maven and Java JDK 17.
-The server listen to port 8080
+# Server
+This is Springboot Hibernate app developed by Liyana Khairul to demonstrate authentication and basic CRUD web application. The client app listen to port 8081. In order to receive data from server, we need to run the server project which listen to port 8081.
 
-### How to run the project
-  
+## Features
+- Login
+- Register
+- Create new user
+- Remove user
+- Assign role
+- Update user
+
+### How to run the project 
 ```
 docker-compose up
 ```
@@ -11,7 +17,6 @@ docker-compose up
 ```
 docker-compose down
 ```
-
 # Docker image : 
 https://hub.docker.com/r/liyanamyc/server-user-mgt
 ## Preview :
