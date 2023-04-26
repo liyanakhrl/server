@@ -1,8 +1,11 @@
 spring:
   datasource:
-    url: jdbc:mysql://mysqldb:3306/demodb
-    username: root
-    password: p@ssw0rd
+#    url: jdbc:mysql://mysqldb:3306/demodb
+#    username: root
+#    password: p@ssw0rd
+    url: jdbc:mysql://h8il5gnzifi9jxhs:mk8cp1a4k0vx7rxm@qao3ibsa7hhgecbv.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/jx1726capt8vs3t8
+    username: h8il5gnzifi9jxhs
+    password: xyumjxv0kfh9rhc5
   jpa:
     properties:
       hibernate:
